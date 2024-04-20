@@ -92,7 +92,7 @@ def main(args):
     for epoch in range(num_epochs):
         epoch_train_loss = 0.0
 
-        for batch in eval_dataloader:
+        for batch in train_dataloader:
             batch = {k: v.to(device) for k, v in batch.items()}
             outputs = phobert(**batch)
             loss = outputs.loss
