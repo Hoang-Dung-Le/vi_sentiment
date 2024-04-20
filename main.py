@@ -158,5 +158,5 @@ def main(args):
 
 
 if __name__ == '__main__':
-    args, config = parse_option()
+    args = parse_option()
     main(args)
