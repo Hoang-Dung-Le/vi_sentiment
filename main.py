@@ -4,6 +4,7 @@ from torch.optim import AdamW
 from transformers import get_scheduler
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
+from datetime import datetime
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import re
@@ -136,6 +137,13 @@ def main(args):
 
         print(f"Epoch: {epoch+1}, Training Loss: {epoch_train_loss:.4f},  Validation loss {eval_loss: .4f},
                F1 Score: {eval_f1}")
+        
+    now = datetime.now()
+    torch.save({
+        'model_state_dict': phobert.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'epoch': epoch + 1,  # Add current epoch
+    }, f'model_{now}.pt')
 
     plt.figure(figsize=(10, 6))
 
