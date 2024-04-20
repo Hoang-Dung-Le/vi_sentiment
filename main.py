@@ -156,3 +156,7 @@ def main(args):
     plt.legend()
     plt.savefig('./training.png')
 
+
+if __name__ == '__main__':
+    args, config = parse_option()
+    main(args)
