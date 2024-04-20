@@ -6,3 +6,4 @@ tqdm
 matplotlib
 numpy
 argparse
+streamlit

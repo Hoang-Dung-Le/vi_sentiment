@@ -1,4 +1,3 @@
-from datasets import load_dataset
 import argparse
 from torch.optim import AdamW
 from transformers import get_scheduler
@@ -7,13 +6,13 @@ from tqdm.auto import tqdm
 from datetime import datetime
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
-import re
 import string
+from focal_loss import FocalLoss
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import f1_score
-from torch.utils.data import DataLoader
 from sklearn.preprocessing import LabelEncoder
+from dataset import get_dataset
 string.punctuation.__add__('!!')
 string.punctuation.__add__('(')
 string.punctuation.__add__(')')
@@ -30,6 +29,7 @@ def parse_option():
     parser.add_argument('--val_file', type=str, help='path to val dataset', default='./val.csv')
     parser.add_argument('--test_file', type=str, help='path to test dataset', default='./test.csv')
     parser.add_argument('--lr', type=float, help='learning rate', default=1e-5)
+    parser.add_argument("--save_model", type=str, help="path to save model")
 
     args, unparsed = parser.parse_known_args()
 
@@ -38,38 +38,11 @@ def parse_option():
 
 
 def main(args):
-    dataset = load_dataset("csv", data_files={"train": args.train_file,
-                                          "val": args.val_file,
-                                          "test": args.test_file})
-    
-    dataset = dataset.remove_columns(["rate", "Unnamed: 3"])
 
     phobert = AutoModelForSequenceClassification.from_pretrained("vinai/phobert-base",num_labels=3)
     tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base")
 
-    def tokenize_function(examples):
-        encoded_inputs = tokenizer(examples["comment"], padding="max_length", truncation=True, return_tensors='pt')
-
-        labels = examples["label"]
-        label_encoder = LabelEncoder()
-        encoded_labels = label_encoder.fit_transform(labels)
-        encoded_labels = torch.tensor(encoded_labels, dtype=torch.long)
-
-        encoded_example = {**encoded_inputs, "label": encoded_labels}
-
-        return encoded_example
-    
-    tokenized_datasets = dataset.map(tokenize_function, batched=True)
-
-    tokenized_datasets = tokenized_datasets.remove_columns(["comment"])
-    tokenized_datasets = tokenized_datasets.rename_column("label", "labels")
-    tokenized_datasets.set_format("torch")
-
-    train_dataset = tokenized_datasets["train"].shuffle(seed=42)
-    eval_dataset = tokenized_datasets["val"].shuffle(seed=42)
-
-    train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=args.batch_size)
-    eval_dataloader = DataLoader(eval_dataset, batch_size=args.batch_size)
+    train_dataloader, eval_dataloader = get_dataset(args, tokenizer)
 
     num_epochs = args.epochs
     num_training_steps = num_epochs * len(train_dataloader)
@@ -83,6 +56,8 @@ def main(args):
 
     progress_bar = tqdm(range(num_training_steps))
 
+    criterion = FocalLoss()
+
     train_losses = []
     eval_losses = []
     eval_accs = []
@@ -95,7 +70,9 @@ def main(args):
         for batch in train_dataloader:
             batch = {k: v.to(device) for k, v in batch.items()}
             outputs = phobert(**batch)
-            loss = outputs.loss
+            # loss = outputs.loss
+            logits = outputs.logits
+            loss = criterion(logits, batch["labels"])
             loss.backward()
 
             optimizer.step()
@@ -113,8 +90,6 @@ def main(args):
 
         phobert.eval()
         eval_loss = 0
-        eval_num_correct = 0
-        eval_num_examples = 0
         predictions = []
         labels = []
         for batch in eval_dataloader:
@@ -122,7 +97,6 @@ def main(args):
             with torch.no_grad():
                 outputs = phobert(**batch)
 
-            logits = outputs.logits
             loss = outputs.loss
             eval_loss += loss.item()
             predictions.extend(outputs.logits.argmax(-1).to('cpu').numpy())
