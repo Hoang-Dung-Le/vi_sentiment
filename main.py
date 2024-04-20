@@ -56,7 +56,7 @@ def main(args):
 
     progress_bar = tqdm(range(num_training_steps))
 
-    criterion = FocalLoss()
+    criterion = FocalLoss(reduction='mean')
 
     train_losses = []
     eval_losses = []
