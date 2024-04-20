@@ -135,8 +135,7 @@ def main(args):
         eval_accs.append(eval_acc)
         eval_f1s.append(eval_f1)
 
-        print(f"Epoch: {epoch+1}, Training Loss: {epoch_train_loss:.4f},  Validation loss {eval_loss: .4f},
-               F1 Score: {eval_f1}")
+        print(f"Epoch: {epoch+1}, Training Loss: {epoch_train_loss:.4f},  Validation loss {eval_loss: .4f}, F1 Score: {eval_f1}")
         
     now = datetime.now()
     torch.save({
