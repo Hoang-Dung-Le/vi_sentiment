@@ -82,7 +82,7 @@ def main(args):
             epoch_train_loss += loss.item()  # accumulate loss for each batch
 
             predictions = outputs.logits.argmax(-1).to('cpu')
-            label_ids = batch['labels'].to('cpu')
+            # label_ids = batch['labels'].to('cpu')
 
             progress_bar.update(1)
 
@@ -112,11 +112,12 @@ def main(args):
         print(f"Epoch: {epoch+1}, Training Loss: {epoch_train_loss:.4f},  Validation loss {eval_loss: .4f}, F1 Score: {eval_f1}")
         
     now = datetime.now()
+    name_model = args.save_model + "/" + "model_" + str(now)
     torch.save({
         'model_state_dict': phobert.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
-        'epoch': epoch + 1,  # Add current epoch
-    }, f'model_{now}.pt')
+        'epoch': epoch + 1,
+    }, name_model)
 
     plt.figure(figsize=(10, 6))
 
