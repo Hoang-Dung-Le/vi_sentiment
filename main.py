@@ -46,7 +46,8 @@ def main(args):
         if name in ["classifier"]:
             continue
         for param in layer.parameters():
-            param.requires_grad = False
+            if param.requires_grad:
+                param.requires_grad = False
 
 
     train_dataloader, eval_dataloader = get_dataset(args, tokenizer)
