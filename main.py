@@ -117,7 +117,7 @@ def main(args):
         print(f"Epoch: {epoch+1}, Training Loss: {epoch_train_loss:.4f},  Validation loss {eval_loss: .4f}, F1 Score: {eval_f1}")
         
     now = datetime.now()
-    name_model = args.save_model + "/" + "model_" + str(now)
+    name_model = args.save_model + "/" + "model_" + str(now)+"pth"
     torch.save({
         'model_state_dict': phobert.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
