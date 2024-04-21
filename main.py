@@ -51,7 +51,7 @@ def main(args):
 
     num_epochs = args.epochs
     num_training_steps = num_epochs * len(train_dataloader)
-    optimizer = AdamW(phobert.parameters(), lr=5e-5)
+    optimizer = AdamW(phobert.parameters(), lr=args.lr)
     lr_scheduler = get_scheduler(
         name="linear", optimizer=optimizer, num_warmup_steps=0, num_training_steps=num_training_steps
     )
