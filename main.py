@@ -43,12 +43,9 @@ def main(args):
     tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base")
 
     for name, layer in phobert.named_modules():
-        if name in ["classifier"]:
+        if name == "classifier":
             continue
-        if hasattr(layer, "weight") and layer.weight is not None:
-            layer.weight.requires_grad = False
-        if hasattr(layer, "bias") and layer.bias is not None:
-            layer.bias.requires_grad = False
+        layer.requires_grad = False
 
     train_dataloader, eval_dataloader = get_dataset(args, tokenizer)
 
