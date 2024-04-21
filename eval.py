@@ -64,3 +64,7 @@ def main(args):
     evaluate(phobert, tokenizer, eval_dataloader, device)
     print("------END-------")
 
+if __name__ == '__main__':
+    args = parse_option()
+    main(args)
+
