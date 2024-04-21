@@ -42,10 +42,10 @@ def main(args):
     phobert = AutoModelForSequenceClassification.from_pretrained("vinai/phobert-base",num_labels=3)
     tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base")
 
-    for name, _ in phobert.named_modules():
+    for name, layer in phobert.named_modules():
         if name in ["classifier"]:
             continue
-        phobert.get_named_parameter(name).requires_grad = False
+        layer.requires_grad = False
 
     train_dataloader, eval_dataloader = get_dataset(args, tokenizer)
 
