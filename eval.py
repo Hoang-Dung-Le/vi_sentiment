@@ -47,16 +47,17 @@ def evaluate(model, tokenizer, dataloader, device):
 
 def main(args):
 
-    phobert = AutoModelForSequenceClassification.from_pretrained(args.model,num_labels=3)
+    # phobert = AutoModelForSequenceClassification.from_pretrained(args.model,num_labels=3)
+    phobert = AutoModelForSequenceClassification.from_pretrained('vinai/phobert-base',num_labels=3)
     tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base")
     # load data
     print("Loading data...")
-    # phobert.load_state_dict(torch.load(args.model))
+    phobert.load_state_dict(torch.load(args.model))
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     phobert.to(device)
     train_dataloader, eval_dataloader = get_dataset(args, tokenizer)
-    print("-------eval training data---------")
-    evaluate(phobert, tokenizer, train_dataloader, device)
+    # print("-------eval training data---------")
+    # evaluate(phobert, tokenizer, train_dataloader, device)
     print("-------eval testing data -------")
     evaluate(phobert, tokenizer, eval_dataloader, device)
     print("------END-------")
