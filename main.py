@@ -45,7 +45,9 @@ def main(args):
     for name, layer in phobert.named_modules():
         if name in ["classifier"]:
             continue
-        layer.requires_grad = False
+        for param in layer.parameters():
+            param.requires_grad = False
+
 
     train_dataloader, eval_dataloader = get_dataset(args, tokenizer)
 
