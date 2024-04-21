@@ -35,9 +35,6 @@ def evaluate(model, tokenizer, dataloader, device):
         batch = {k: v.to(device) for k, v in batch.items()}
         with torch.no_grad():
             outputs = model(**batch)
-
-        loss = outputs.loss
-        eval_loss += loss.item()
         predictions.extend(outputs.logits.argmax(-1).to('cpu').numpy())
         labels.extend(batch['labels'].to('cpu').numpy())
     eval_acc = np.sum(predictions == labels) / len(labels)
